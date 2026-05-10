@@ -188,10 +188,32 @@ let isSaving = false;
 
 function ensureArray(v) { return Array.isArray(v) ? v : []; }
 
+// 어떤 형식의 날짜든 yyyy-MM-dd 로 변환
+function parseDate(val) {
+  if (!val) return '';
+  const s = String(val).trim();
+  // 이미 yyyy-MM-dd
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  // Date 객체나 다른 문자열 형식
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  return s.slice(0,10);
+}
+
+function getYear(dateStr) {
+  const s = parseDate(dateStr);
+  return s.slice(0,4);
+}
+
 function loadLocal() {
   try {
     const r = localStorage.getItem(STORAGE_KEY);
-    if (r) entries = ensureArray(JSON.parse(r));
+    if (r) entries = ensureArray(JSON.parse(r)).map(e=>({...e, date:parseDate(e.date)}));
     const s = localStorage.getItem(SETTINGS_KEY);
     if (s) {
       const p = JSON.parse(s);
@@ -224,7 +246,7 @@ async function syncFromSheet() {
       if (Array.isArray(data.entries)) {
         entries = data.entries.map(e => ({
           ...e,
-          date: String(e.date).slice(0,10),
+          date: parseDate(e.date),
           amount: parseFloat(e.amount)||0,
           eurAmount: parseFloat(e.eurAmount)||0
         }));
@@ -252,10 +274,7 @@ async function pushToSheet(action, payload) {
 }
 
 async function saveSettings() {
-  await pushToSheet('saveSettings', {
-    projects: settings.projects,
-    categories: settings.categories
-  });
+  await pushToSheet('saveSettings', {projects: settings.projects, categories: settings.categories});
 }
 
 function init() {
@@ -326,21 +345,21 @@ async function saveEntry() {
 }
 
 function getYears() {
-  return [...new Set(ensureArray(entries).map(e=>String(e.date).slice(0,4)))].filter(Boolean).sort((a,b)=>b-a);
+  return [...new Set(ensureArray(entries).map(e=>getYear(e.date)))].filter(y=>/^\d{4}$/.test(y)).sort((a,b)=>b-a);
 }
 function getFiltered() {
   return ensureArray(entries).filter(e => {
-    const yOk = activeYear==='all'||String(e.date).startsWith(activeYear);
-    const pOk = activeProject==='all'||e.project===activeProject;
-    return yOk&&pOk;
+    const yOk = activeYear==='all' || getYear(e.date)===activeYear;
+    const pOk = activeProject==='all' || e.project===activeProject;
+    return yOk && pOk;
   });
 }
 
 function renderList() {
   const now = new Date();
   const thisMonth = ensureArray(entries).filter(e=>{
-    const d=new Date(e.date);
-    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    const d = new Date(parseDate(e.date));
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
   });
   document.getElementById('sum-month').textContent = '€'+thisMonth.reduce((s,e)=>s+(e.eurAmount||0),0).toFixed(2);
 
@@ -369,11 +388,12 @@ function renderList() {
 
   const el = document.getElementById('entry-list');
   if (!filtered.length) { el.innerHTML='<div class="empty">기록이 없어요</div>'; return; }
-  const sorted = [...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const sorted = [...filtered].sort((a,b)=>parseDate(b.date).localeCompare(parseDate(a.date)));
   el.innerHTML = sorted.map(e=>{
     const rLabel=e.receipt==='paper'?'종이':e.receipt==='pdf'?'PDF':'—';
     const rClass=e.receipt==='paper'?'badge-paper':e.receipt==='pdf'?'badge-pdf':'badge-none';
     const origStr=e.currency!=='EUR'?`<span class="entry-orig">(${e.amount} ${e.currency})</span>`:'';
+    const displayDate = parseDate(e.date);
     return `<div class="entry">
       <div class="entry-top">
         <div class="entry-desc">${e.desc||'(설명 없음)'}</div>
@@ -383,7 +403,7 @@ function renderList() {
         </div>
       </div>
       <div class="entry-meta">
-        <span class="entry-date">${String(e.date).slice(0,10)}</span>
+        <span class="entry-date">${displayDate}</span>
         <span class="tag">${e.project}</span>
         <span class="tag">${e.category}</span>
         <span class="badge ${rClass}">${rLabel}</span>
@@ -445,15 +465,17 @@ async function delCategory(i) {
 
 function makeCSV(ents){
   const header='날짜,연도,프로젝트,금액(EUR),원래금액,통화,카테고리,설명,영수증';
-  const sorted=[...ents].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-  const rows=sorted.map(e=>[String(e.date).slice(0,10),String(e.date).slice(0,4),e.project,e.eurAmount,e.amount,e.currency,e.category,'"'+(e.desc||'')+'"',e.receipt==='paper'?'종이':e.receipt==='pdf'?'PDF':'없음'].join(','));
+  const sorted=[...ents].sort((a,b)=>parseDate(b.date).localeCompare(parseDate(a.date)));
+  const rows=sorted.map(e=>{
+    const d=parseDate(e.date);
+    return [d,d.slice(0,4),e.project,e.eurAmount,e.amount,e.currency,e.category,'"'+(e.desc||'')+'"',e.receipt==='paper'?'종이':e.receipt==='pdf'?'PDF':'없음'].join(',');
+  });
   return '\uFEFF'+[header,...rows].join('\n');
 }
 function makeFilename(){const parts=['지출'];if(activeYear!=='all')parts.push(activeYear+'년');if(activeProject!=='all')parts.push(activeProject);parts.push(new Date().toISOString().split('T')[0]);return parts.join('_')+'.csv';}
 function downloadCSV(csv,filename){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=filename;a.click();}
 function exportFiltered(){const ents=getFiltered();if(!ents.length){showToast('내보낼 내역이 없어요');return;}downloadCSV(makeCSV(ents),makeFilename());showToast('다운로드 완료');}
 function exportAll(){if(!entries.length){showToast('내보낼 내역이 없어요');return;}downloadCSV(makeCSV(entries),'지출_전체_'+new Date().toISOString().split('T')[0]+'.csv');showToast('전체 CSV 다운로드 완료');}
-
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
 loadLocal();
