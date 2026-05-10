@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="지출기록">
 <meta name="theme-color" content="#FAFAF8">
@@ -23,7 +23,6 @@
 }
 html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-serif; color: var(--text); font-size: 15px; -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
 .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg2); }
-
 .header { padding: 52px 20px 12px; display: flex; align-items: flex-end; justify-content: space-between; background: var(--bg2); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
 .header-title { font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .header-right { display: flex; align-items: center; gap: 10px; }
@@ -34,14 +33,11 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 .sync-dot.err { background: #E24B4A; }
 .sync-dot.loading { background: var(--accent); animation: pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
 .nav { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 57px; z-index: 9; }
 .nav-btn { flex: 1; padding: 12px 0; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; }
 .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
-
 .screen { display: none; flex: 1; padding: 20px; padding-bottom: 40px; }
 .screen.active { display: block; }
-
 .field { margin-bottom: 16px; }
 .field-label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
 .field input, .field select { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; background: var(--surface); color: var(--text); appearance: none; -webkit-appearance: none; outline: none; transition: border-color 0.15s; }
@@ -55,12 +51,10 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 .btn-save { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
 .btn-save:active { opacity: 0.82; }
 .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
-
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .card { background: var(--bg); border-radius: var(--radius-lg); padding: 14px 16px; text-align: center; }
 .card-label { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
 .card-val { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: var(--accent); }
-
 .filter-block { margin-bottom: 10px; }
 .filter-block-label { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 7px; }
 .chips { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; }
@@ -68,11 +62,9 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 .chip { padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; background: var(--surface); color: var(--muted); transition: all 0.15s; flex-shrink: 0; user-select: none; -webkit-user-select: none; }
 .chip.active { background: var(--accent-bg); border-color: var(--accent-light); color: var(--accent); font-weight: 500; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
-
 .list-toolbar { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 10px; }
 .list-count { font-size: 12px; color: var(--muted); }
 .btn-export-sm { padding: 6px 13px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 12px; background: var(--surface); color: var(--text); cursor: pointer; }
-
 .entries { display: flex; flex-direction: column; gap: 8px; }
 .entry { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 15px; }
 .entry-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
@@ -90,7 +82,6 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 .badge-none { background: var(--bg); color: var(--muted); }
 .entry-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
 .empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 14px; }
-
 .section-title { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 20px 0 10px; }
 .section-title:first-child { margin-top: 0; }
 .proj-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
@@ -106,10 +97,8 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 .add-row input:focus { border-color: var(--accent-light); }
 .btn-add { padding: 9px 16px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; }
 .btn-export-full { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--surface); color: var(--text); cursor: pointer; margin-top: 10px; }
-
 .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: #1A1917; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; z-index: 100; }
 .toast.show { opacity: 1; }
-
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .screen { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
   .header { padding-top: max(52px, calc(20px + env(safe-area-inset-top))); }
@@ -121,10 +110,7 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
   <div class="header">
     <span class="header-title">지출 기록</span>
     <div class="header-right">
-      <div class="sync-status">
-        <div class="sync-dot" id="sync-dot"></div>
-        <span id="sync-text"></span>
-      </div>
+      <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-text"></span></div>
       <span class="header-date" id="today-date"></span>
     </div>
   </div>
@@ -133,7 +119,6 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
     <button class="nav-btn" onclick="showScreen('list',this)">내역</button>
     <button class="nav-btn" onclick="showScreen('manage',this)">관리</button>
   </div>
-
   <div id="screen-input" class="screen active">
     <div class="field"><label class="field-label">날짜</label><input type="date" id="inp-date"></div>
     <div class="field"><label class="field-label">프로젝트</label><select id="inp-project"></select></div>
@@ -157,7 +142,6 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
     </div>
     <button class="btn-save" id="btn-save" onclick="saveEntry()">저장</button>
   </div>
-
   <div id="screen-list" class="screen">
     <div class="cards">
       <div class="card"><div class="card-label">이번 달</div><div class="card-val" id="sum-month">€0</div></div>
@@ -172,7 +156,6 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
     </div>
     <div class="entries" id="entry-list"></div>
   </div>
-
   <div id="screen-manage" class="screen">
     <div class="section-title">프로젝트별 합계</div>
     <div id="proj-summary"></div>
@@ -188,7 +171,6 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
   </div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyIgqEox60Z-BENhT7e4bCqExLGa3S5MV-ApbqPexfZHcuXcz9ytVysjxA0gbx44XNoA/exec';
 const STORAGE_KEY = 'expense-tracker-v1';
@@ -204,14 +186,28 @@ let activeYear = 'all';
 let activeProject = 'all';
 let isSaving = false;
 
+function ensureArray(v) { return Array.isArray(v) ? v : []; }
+
 function loadLocal() {
   try {
-    const r = localStorage.getItem(STORAGE_KEY); if (r) entries = JSON.parse(r);
-    const s = localStorage.getItem(SETTINGS_KEY); if (s) settings = JSON.parse(s);
-  } catch(e) {}
+    const r = localStorage.getItem(STORAGE_KEY);
+    if (r) entries = ensureArray(JSON.parse(r));
+    const s = localStorage.getItem(SETTINGS_KEY);
+    if (s) {
+      const parsed = JSON.parse(s);
+      settings = {
+        projects: ensureArray(parsed.projects).length ? parsed.projects : [...DEFAULT_PROJECTS],
+        categories: ensureArray(parsed.categories).length ? parsed.categories : [...DEFAULT_CATS]
+      };
+    }
+  } catch(e) { entries = []; }
 }
+
 function saveLocal() {
-  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(entries)); localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings)); } catch(e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch(e) {}
 }
 
 function setSyncStatus(state, text) {
@@ -222,23 +218,39 @@ function setSyncStatus(state, text) {
 async function syncFromSheet() {
   setSyncStatus('loading','동기화 중…');
   try {
-    const res = await fetch(SCRIPT_URL);
+    const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
     const data = await res.json();
-    if (data.ok) {
-      entries = data.entries.map(e => ({...e, amount:parseFloat(e.amount)||0, eurAmount:parseFloat(e.eurAmount)||0}));
+    if (data.ok && Array.isArray(data.entries)) {
+      entries = data.entries.map(e => ({
+        ...e,
+        amount: parseFloat(e.amount) || 0,
+        eurAmount: parseFloat(e.eurAmount) || 0
+      }));
       saveLocal();
       setSyncStatus('ok','동기화됨');
       renderList(); renderManage();
-    } else { setSyncStatus('err','오류'); }
-  } catch(e) { setSyncStatus('err','오프라인'); }
+    } else {
+      setSyncStatus('err','오류');
+    }
+  } catch(e) {
+    setSyncStatus('err','오프라인');
+  }
 }
 
 async function syncNow() { await syncFromSheet(); showToast('동기화 완료'); }
 
 async function pushToSheet(action, payload) {
   try {
-    await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify({action,...payload}), headers:{'Content-Type':'text/plain'}});
-  } catch(e) { showToast('네트워크 오류 — 로컬에만 저장됨'); }
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({action, ...payload}),
+      headers: {'Content-Type': 'text/plain'}
+    });
+    const data = await res.json();
+    if (!data.ok) showToast('시트 저장 오류');
+  } catch(e) {
+    showToast('네트워크 오류 — 로컬에만 저장됨');
+  }
 }
 
 function init() {
@@ -251,17 +263,25 @@ function init() {
 function showScreen(s, btn) {
   document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById('screen-'+s).classList.add('active'); btn.classList.add('active');
+  document.getElementById('screen-'+s).classList.add('active');
+  btn.classList.add('active');
   if (s==='list') renderList();
   if (s==='manage') renderManage();
 }
 
-function renderProjectSelect() { document.getElementById('inp-project').innerHTML = settings.projects.map(p=>`<option>${p}</option>`).join(''); }
-function renderCategorySelect() { document.getElementById('inp-category').innerHTML = settings.categories.map(c=>`<option>${c}</option>`).join(''); }
-function selectReceipt(el,val) { document.querySelectorAll('.receipt-opt').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); activeReceipt=val; }
+function renderProjectSelect() {
+  document.getElementById('inp-project').innerHTML = ensureArray(settings.projects).map(p=>`<option>${p}</option>`).join('');
+}
+function renderCategorySelect() {
+  document.getElementById('inp-category').innerHTML = ensureArray(settings.categories).map(c=>`<option>${c}</option>`).join('');
+}
+function selectReceipt(el, val) {
+  document.querySelectorAll('.receipt-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected'); activeReceipt = val;
+}
 
-document.getElementById('inp-amount').addEventListener('input',updateEurNote);
-document.getElementById('inp-currency').addEventListener('change',updateEurNote);
+document.getElementById('inp-amount').addEventListener('input', updateEurNote);
+document.getElementById('inp-currency').addEventListener('change', updateEurNote);
 function updateEurNote() {
   const amt = parseFloat(document.getElementById('inp-amount').value)||0;
   const cur = document.getElementById('inp-currency').value;
@@ -269,7 +289,7 @@ function updateEurNote() {
   if (cur==='EUR'||!amt) { note.textContent=''; return; }
   note.textContent = '≈ €'+(amt*(RATES[cur]||1)).toFixed(2)+'  (환율 기준 근사치)';
 }
-function toEur(amt,cur) { return parseFloat((amt*(RATES[cur]||1)).toFixed(2)); }
+function toEur(amt, cur) { return parseFloat((amt*(RATES[cur]||1)).toFixed(2)); }
 
 async function saveEntry() {
   if (isSaving) return;
@@ -300,9 +320,11 @@ async function saveEntry() {
   showToast('저장했습니다 ✓');
 }
 
-function getYears() { return [...new Set(entries.map(e=>String(e.date).slice(0,4)))].sort((a,b)=>b-a); }
+function getYears() {
+  return [...new Set(ensureArray(entries).map(e=>String(e.date).slice(0,4)))].filter(Boolean).sort((a,b)=>b-a);
+}
 function getFiltered() {
-  return entries.filter(e => {
+  return ensureArray(entries).filter(e => {
     const yOk = activeYear==='all'||String(e.date).startsWith(activeYear);
     const pOk = activeProject==='all'||e.project===activeProject;
     return yOk&&pOk;
@@ -311,11 +333,18 @@ function getFiltered() {
 
 function renderList() {
   const now = new Date();
-  const thisMonth = entries.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const thisMonth = ensureArray(entries).filter(e=>{
+    const d=new Date(e.date);
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  });
   document.getElementById('sum-month').textContent = '€'+thisMonth.reduce((s,e)=>s+(e.eurAmount||0),0).toFixed(2);
 
-  document.getElementById('year-chips').innerHTML = ['all',...getYears()].map(y=>`<div class="chip${activeYear===y?' active':''}" onclick="setYear('${y}')">${y==='all'?'전체':y+'년'}</div>`).join('');
-  document.getElementById('proj-chips').innerHTML = ['all',...settings.projects].map(p=>`<div class="chip${activeProject===p?' active':''}" onclick="setProject('${p}')">${p==='all'?'전체':p}</div>`).join('');
+  document.getElementById('year-chips').innerHTML = ['all',...getYears()].map(y=>
+    `<div class="chip${activeYear===y?' active':''}" onclick="setYear('${y}')">${y==='all'?'전체':y+'년'}</div>`
+  ).join('');
+  document.getElementById('proj-chips').innerHTML = ['all',...ensureArray(settings.projects)].map(p=>
+    `<div class="chip${activeProject===p?' active':''}" onclick="setProject('${p}')">${p==='all'?'전체':p}</div>`
+  ).join('');
 
   const filtered = getFiltered();
   document.getElementById('sum-total').textContent = '€'+filtered.reduce((s,e)=>s+(e.eurAmount||0),0).toFixed(2);
@@ -363,25 +392,43 @@ function setProject(p){activeProject=p;renderList();}
 
 async function deleteEntry(id) {
   if (!confirm('이 항목을 삭제할까요?')) return;
-  entries = entries.filter(e=>e.id!==id);
+  entries = ensureArray(entries).filter(e=>e.id!==id);
   saveLocal(); renderList();
   await pushToSheet('delete',{id});
   showToast('삭제됨');
 }
 
 function renderManage() {
-  document.getElementById('proj-summary').innerHTML = settings.projects.map(p=>{
-    const ent=entries.filter(e=>e.project===p);
+  document.getElementById('proj-summary').innerHTML = ensureArray(settings.projects).map(p=>{
+    const ent=ensureArray(entries).filter(e=>e.project===p);
     return `<div class="proj-row"><div><div class="proj-name">${p}</div><div class="proj-meta">${ent.length}건</div></div><span class="proj-total">€${ent.reduce((s,e)=>s+(e.eurAmount||0),0).toFixed(2)}</span></div>`;
   }).join('');
-  document.getElementById('proj-list').innerHTML = settings.projects.map((p,i)=>`<div class="proj-row"><span class="proj-name">${p}</span><button class="del-btn" onclick="delProject(${i})">✕</button></div>`).join('');
-  document.getElementById('cat-list').innerHTML = settings.categories.map((c,i)=>`<div class="proj-row"><span class="proj-name" style="font-size:13px">${c}</span><button class="del-btn" onclick="delCategory(${i})">✕</button></div>`).join('');
+  document.getElementById('proj-list').innerHTML = ensureArray(settings.projects).map((p,i)=>
+    `<div class="proj-row"><span class="proj-name">${p}</span><button class="del-btn" onclick="delProject(${i})">✕</button></div>`
+  ).join('');
+  document.getElementById('cat-list').innerHTML = ensureArray(settings.categories).map((c,i)=>
+    `<div class="proj-row"><span class="proj-name" style="font-size:13px">${c}</span><button class="del-btn" onclick="delCategory(${i})">✕</button></div>`
+  ).join('');
 }
 
-function addProject(){const inp=document.getElementById('new-proj');const v=inp.value.trim();if(!v)return;if(settings.projects.includes(v)){showToast('이미 있는 프로젝트예요');return;}settings.projects.push(v);inp.value='';saveLocal();renderProjectSelect();renderManage();showToast('추가됨');}
-function delProject(i){if(entries.some(e=>e.project===settings.projects[i])){showToast('이 프로젝트에 기록이 있어요');return;}settings.projects.splice(i,1);saveLocal();renderProjectSelect();renderManage();}
-function addCategory(){const inp=document.getElementById('new-cat');const v=inp.value.trim();if(!v)return;if(settings.categories.includes(v)){showToast('이미 있는 카테고리예요');return;}settings.categories.push(v);inp.value='';saveLocal();renderCategorySelect();renderManage();showToast('추가됨');}
-function delCategory(i){if(entries.some(e=>e.category===settings.categories[i])){showToast('이 카테고리에 기록이 있어요');return;}settings.categories.splice(i,1);saveLocal();renderCategorySelect();renderManage();}
+function addProject(){
+  const inp=document.getElementById('new-proj'); const v=inp.value.trim(); if(!v)return;
+  if(settings.projects.includes(v)){showToast('이미 있는 프로젝트예요');return;}
+  settings.projects.push(v); inp.value=''; saveLocal(); renderProjectSelect(); renderManage(); showToast('추가됨');
+}
+function delProject(i){
+  if(ensureArray(entries).some(e=>e.project===settings.projects[i])){showToast('이 프로젝트에 기록이 있어요');return;}
+  settings.projects.splice(i,1); saveLocal(); renderProjectSelect(); renderManage();
+}
+function addCategory(){
+  const inp=document.getElementById('new-cat'); const v=inp.value.trim(); if(!v)return;
+  if(settings.categories.includes(v)){showToast('이미 있는 카테고리예요');return;}
+  settings.categories.push(v); inp.value=''; saveLocal(); renderCategorySelect(); renderManage(); showToast('추가됨');
+}
+function delCategory(i){
+  if(ensureArray(entries).some(e=>e.category===settings.categories[i])){showToast('이 카테고리에 기록이 있어요');return;}
+  settings.categories.splice(i,1); saveLocal(); renderCategorySelect(); renderManage();
+}
 
 function makeCSV(ents){
   const header='날짜,연도,프로젝트,금액(EUR),원래금액,통화,카테고리,설명,영수증';
