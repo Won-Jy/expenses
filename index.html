@@ -194,10 +194,10 @@ function loadLocal() {
     if (r) entries = ensureArray(JSON.parse(r));
     const s = localStorage.getItem(SETTINGS_KEY);
     if (s) {
-      const parsed = JSON.parse(s);
+      const p = JSON.parse(s);
       settings = {
-        projects: ensureArray(parsed.projects).length ? parsed.projects : [...DEFAULT_PROJECTS],
-        categories: ensureArray(parsed.categories).length ? parsed.categories : [...DEFAULT_CATS]
+        projects: ensureArray(p.projects).length ? p.projects : [...DEFAULT_PROJECTS],
+        categories: ensureArray(p.categories).length ? p.categories : [...DEFAULT_CATS]
       };
     }
   } catch(e) { entries = []; }
@@ -220,37 +220,42 @@ async function syncFromSheet() {
   try {
     const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
     const data = await res.json();
-    if (data.ok && Array.isArray(data.entries)) {
-      entries = data.entries.map(e => ({
-        ...e,
-        amount: parseFloat(e.amount) || 0,
-        eurAmount: parseFloat(e.eurAmount) || 0
-      }));
+    if (data.ok) {
+      if (Array.isArray(data.entries)) {
+        entries = data.entries.map(e => ({
+          ...e,
+          date: String(e.date).slice(0,10),
+          amount: parseFloat(e.amount)||0,
+          eurAmount: parseFloat(e.eurAmount)||0
+        }));
+      }
+      if (Array.isArray(data.projects) && data.projects.length) settings.projects = data.projects;
+      if (Array.isArray(data.categories) && data.categories.length) settings.categories = data.categories;
       saveLocal();
       setSyncStatus('ok','동기화됨');
+      renderProjectSelect(); renderCategorySelect();
       renderList(); renderManage();
-    } else {
-      setSyncStatus('err','오류');
-    }
-  } catch(e) {
-    setSyncStatus('err','오프라인');
-  }
+    } else { setSyncStatus('err','오류'); }
+  } catch(e) { setSyncStatus('err','오프라인'); }
 }
 
 async function syncNow() { await syncFromSheet(); showToast('동기화 완료'); }
 
 async function pushToSheet(action, payload) {
   try {
-    const res = await fetch(SCRIPT_URL, {
+    await fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({action, ...payload}),
       headers: {'Content-Type': 'text/plain'}
     });
-    const data = await res.json();
-    if (!data.ok) showToast('시트 저장 오류');
-  } catch(e) {
-    showToast('네트워크 오류 — 로컬에만 저장됨');
-  }
+  } catch(e) { showToast('네트워크 오류 — 로컬에만 저장됨'); }
+}
+
+async function saveSettings() {
+  await pushToSheet('saveSettings', {
+    projects: settings.projects,
+    categories: settings.categories
+  });
 }
 
 function init() {
@@ -378,7 +383,7 @@ function renderList() {
         </div>
       </div>
       <div class="entry-meta">
-        <span class="entry-date">${e.date}</span>
+        <span class="entry-date">${String(e.date).slice(0,10)}</span>
         <span class="tag">${e.project}</span>
         <span class="tag">${e.category}</span>
         <span class="badge ${rClass}">${rLabel}</span>
@@ -411,29 +416,37 @@ function renderManage() {
   ).join('');
 }
 
-function addProject(){
+async function addProject() {
   const inp=document.getElementById('new-proj'); const v=inp.value.trim(); if(!v)return;
   if(settings.projects.includes(v)){showToast('이미 있는 프로젝트예요');return;}
-  settings.projects.push(v); inp.value=''; saveLocal(); renderProjectSelect(); renderManage(); showToast('추가됨');
+  settings.projects.push(v); inp.value='';
+  saveLocal(); renderProjectSelect(); renderManage();
+  await saveSettings(); showToast('추가됨');
 }
-function delProject(i){
+async function delProject(i) {
   if(ensureArray(entries).some(e=>e.project===settings.projects[i])){showToast('이 프로젝트에 기록이 있어요');return;}
-  settings.projects.splice(i,1); saveLocal(); renderProjectSelect(); renderManage();
+  settings.projects.splice(i,1);
+  saveLocal(); renderProjectSelect(); renderManage();
+  await saveSettings();
 }
-function addCategory(){
+async function addCategory() {
   const inp=document.getElementById('new-cat'); const v=inp.value.trim(); if(!v)return;
   if(settings.categories.includes(v)){showToast('이미 있는 카테고리예요');return;}
-  settings.categories.push(v); inp.value=''; saveLocal(); renderCategorySelect(); renderManage(); showToast('추가됨');
+  settings.categories.push(v); inp.value='';
+  saveLocal(); renderCategorySelect(); renderManage();
+  await saveSettings(); showToast('추가됨');
 }
-function delCategory(i){
+async function delCategory(i) {
   if(ensureArray(entries).some(e=>e.category===settings.categories[i])){showToast('이 카테고리에 기록이 있어요');return;}
-  settings.categories.splice(i,1); saveLocal(); renderCategorySelect(); renderManage();
+  settings.categories.splice(i,1);
+  saveLocal(); renderCategorySelect(); renderManage();
+  await saveSettings();
 }
 
 function makeCSV(ents){
   const header='날짜,연도,프로젝트,금액(EUR),원래금액,통화,카테고리,설명,영수증';
   const sorted=[...ents].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-  const rows=sorted.map(e=>[e.date,String(e.date).slice(0,4),e.project,e.eurAmount,e.amount,e.currency,e.category,'"'+(e.desc||'')+'"',e.receipt==='paper'?'종이':e.receipt==='pdf'?'PDF':'없음'].join(','));
+  const rows=sorted.map(e=>[String(e.date).slice(0,10),String(e.date).slice(0,4),e.project,e.eurAmount,e.amount,e.currency,e.category,'"'+(e.desc||'')+'"',e.receipt==='paper'?'종이':e.receipt==='pdf'?'PDF':'없음'].join(','));
   return '\uFEFF'+[header,...rows].join('\n');
 }
 function makeFilename(){const parts=['지출'];if(activeYear!=='all')parts.push(activeYear+'년');if(activeProject!=='all')parts.push(activeProject);parts.push(new Date().toISOString().split('T')[0]);return parts.join('_')+'.csv';}
