@@ -68,10 +68,12 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 .entries { display: flex; flex-direction: column; gap: 8px; }
 .entry { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 15px; }
 .entry-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-.entry-desc { font-size: 14px; font-weight: 500; max-width: 195px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.entry-right { display: flex; align-items: center; gap: 5px; }
+.entry-desc { font-size: 14px; font-weight: 500; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entry-right { display: flex; align-items: center; gap: 4px; }
 .entry-amount { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--accent); }
 .entry-orig { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+.btn-edit { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 2px 5px; border-radius: 4px; line-height: 1; }
+.btn-edit:hover { color: var(--accent); }
 .btn-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; line-height: 1; }
 .btn-del:hover { color: #E24B4A; }
 .entry-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -82,6 +84,16 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 .badge-none { background: var(--bg); color: var(--muted); }
 .entry-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
 .empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 14px; }
+
+/* 수정 모달 */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 50; align-items: flex-end; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--bg2); border-radius: 20px 20px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 16px; font-weight: 500; margin-bottom: 20px; }
+.modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+.btn-cancel { padding: 13px; background: var(--bg); color: var(--text); border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer; }
+.btn-confirm { padding: 13px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
+
 .section-title { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 20px 0 10px; }
 .section-title:first-child { margin-top: 0; }
 .proj-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
@@ -102,6 +114,7 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .screen { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
   .header { padding-top: max(52px, calc(20px + env(safe-area-inset-top))); }
+  .modal { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
 }
 </style>
 </head>
@@ -170,6 +183,37 @@ html, body { height: 100%; background: var(--bg2); font-family: 'DM Sans', sans-
     <button class="btn-export-full" onclick="syncNow()" style="color:var(--accent);margin-top:8px">↻ 구글시트에서 다시 불러오기</button>
   </div>
 </div>
+
+<!-- 수정 모달 -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">내역 수정</div>
+    <div class="field"><label class="field-label">날짜</label><input type="date" id="edit-date"></div>
+    <div class="field"><label class="field-label">프로젝트</label><select id="edit-project"></select></div>
+    <div class="field">
+      <label class="field-label">금액</label>
+      <div class="amount-row">
+        <input type="text" id="edit-amount" placeholder="0.00" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" oninput="this.value=this.value.replace(/[^0-9.,]/g,'')">
+        <select id="edit-currency"><option>EUR</option><option>USD</option><option>SEK</option><option>DKK</option><option>GBP</option><option>KRW</option><option>CHF</option></select>
+      </div>
+    </div>
+    <div class="field"><label class="field-label">카테고리</label><select id="edit-category"></select></div>
+    <div class="field"><label class="field-label">설명</label><input type="text" id="edit-desc" autocomplete="off"></div>
+    <div class="field">
+      <label class="field-label">영수증 형태</label>
+      <div class="receipt-opts" id="edit-receipt-opts">
+        <div class="receipt-opt" onclick="selectEditReceipt(this,'none')">없음</div>
+        <div class="receipt-opt" onclick="selectEditReceipt(this,'paper')">종이 영수증</div>
+        <div class="receipt-opt" onclick="selectEditReceipt(this,'pdf')">PDF / 웹문서</div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeEditModal()">취소</button>
+      <button class="btn-confirm" onclick="confirmEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyIgqEox60Z-BENhT7e4bCqExLGa3S5MV-ApbqPexfZHcuXcz9ytVysjxA0gbx44XNoA/exec';
@@ -185,10 +229,11 @@ let activeReceipt = 'none';
 let activeYear = 'all';
 let activeProject = 'all';
 let isSaving = false;
+let editingId = null;
+let editReceipt = 'none';
 
 function ensureArray(v) { return Array.isArray(v) ? v : []; }
 
-// 어떤 형식의 날짜든 yyyy-MM-dd 로 변환
 function parseDate(val) {
   if (!val) return '';
   const s = String(val).trim();
@@ -196,7 +241,6 @@ function parseDate(val) {
   const d = new Date(s);
   if (!isNaN(d.getTime())) {
     const y = d.getFullYear();
-    // 연도가 말이 안 되면 무시
     if (y < 2000 || y > 2100) return '';
     const m = String(d.getMonth()+1).padStart(2,'0');
     const day = String(d.getDate()).padStart(2,'0');
@@ -205,10 +249,7 @@ function parseDate(val) {
   return '';
 }
 
-function getYear(dateStr) {
-  const s = parseDate(dateStr);
-  return s.slice(0,4);
-}
+function getYear(dateStr) { const s = parseDate(dateStr); return s.slice(0,4); }
 
 function loadLocal() {
   try {
@@ -245,10 +286,8 @@ async function syncFromSheet() {
     if (data.ok) {
       if (Array.isArray(data.entries)) {
         entries = data.entries.map(e => ({
-          ...e,
-          date: parseDate(e.date),
-          amount: parseFloat(e.amount)||0,
-          eurAmount: parseFloat(e.eurAmount)||0
+          ...e, date: parseDate(e.date),
+          amount: parseFloat(e.amount)||0, eurAmount: parseFloat(e.eurAmount)||0
         }));
       }
       if (Array.isArray(data.projects) && data.projects.length) settings.projects = data.projects;
@@ -294,20 +333,28 @@ function showScreen(s, btn) {
 }
 
 function renderProjectSelect() {
-  document.getElementById('inp-project').innerHTML = ensureArray(settings.projects).map(p=>`<option>${p}</option>`).join('');
+  const opts = ensureArray(settings.projects).map(p=>`<option>${p}</option>`).join('');
+  document.getElementById('inp-project').innerHTML = opts;
+  document.getElementById('edit-project').innerHTML = opts;
 }
 function renderCategorySelect() {
-  document.getElementById('inp-category').innerHTML = ensureArray(settings.categories).map(c=>`<option>${c}</option>`).join('');
+  const opts = ensureArray(settings.categories).map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('inp-category').innerHTML = opts;
+  document.getElementById('edit-category').innerHTML = opts;
 }
 function selectReceipt(el, val) {
-  document.querySelectorAll('.receipt-opt').forEach(e=>e.classList.remove('selected'));
+  document.querySelectorAll('#screen-input .receipt-opt').forEach(e=>e.classList.remove('selected'));
   el.classList.add('selected'); activeReceipt = val;
+}
+function selectEditReceipt(el, val) {
+  document.querySelectorAll('#edit-receipt-opts .receipt-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected'); editReceipt = val;
 }
 
 document.getElementById('inp-amount').addEventListener('input', updateEurNote);
 document.getElementById('inp-currency').addEventListener('change', updateEurNote);
 function updateEurNote() {
-  const amt = parseFloat(document.getElementById('inp-amount').value)||0;
+  const amt = parseFloat(document.getElementById('inp-amount').value.replace(',','.'))||0;
   const cur = document.getElementById('inp-currency').value;
   const note = document.getElementById('eur-note');
   if (cur==='EUR'||!amt) { note.textContent=''; return; }
@@ -342,6 +389,55 @@ async function saveEntry() {
   document.getElementById('inp-desc').value = '';
   document.getElementById('eur-note').textContent = '';
   showToast('저장했습니다 ✓');
+}
+
+// 수정 모달
+function openEditModal(id) {
+  const e = entries.find(x=>x.id==id);
+  if (!e) return;
+  editingId = id;
+  editReceipt = e.receipt || 'none';
+  document.getElementById('edit-date').value = e.date;
+  document.getElementById('edit-project').value = e.project;
+  document.getElementById('edit-amount').value = e.amount;
+  document.getElementById('edit-currency').value = e.currency || 'EUR';
+  document.getElementById('edit-category').value = e.category;
+  document.getElementById('edit-desc').value = e.desc || '';
+  document.querySelectorAll('#edit-receipt-opts .receipt-opt').forEach(el => {
+    el.classList.toggle('selected', el.getAttribute('onclick').includes(`'${editReceipt}'`));
+  });
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('show');
+  editingId = null;
+}
+
+async function confirmEdit() {
+  if (!editingId) return;
+  const date = document.getElementById('edit-date').value;
+  const project = document.getElementById('edit-project').value;
+  const amount = parseFloat(document.getElementById('edit-amount').value.replace(',','.'));
+  const currency = document.getElementById('edit-currency').value;
+  const category = document.getElementById('edit-category').value;
+  const desc = document.getElementById('edit-desc').value.trim();
+  if (!date||!amount||isNaN(amount)) { showToast('날짜와 금액을 입력해주세요'); return; }
+
+  const idx = entries.findIndex(x=>x.id==editingId);
+  if (idx === -1) return;
+
+  const updated = {id:editingId, date, project, amount, currency, eurAmount:toEur(amount,currency), category, desc, receipt:editReceipt};
+  entries[idx] = updated;
+  saveLocal();
+  renderList();
+  closeEditModal();
+  showToast('수정됐습니다 ✓');
+
+  // 시트에서 기존 삭제 후 새로 추가
+  await pushToSheet('delete', {id: editingId});
+  await pushToSheet('save', updated);
+  setSyncStatus('ok','동기화됨');
 }
 
 function getYears() {
@@ -399,7 +495,8 @@ function renderList() {
         <div class="entry-desc">${e.desc||'(설명 없음)'}</div>
         <div class="entry-right">
           <div><div class="entry-amount">€${(e.eurAmount||0).toFixed(2)}</div>${origStr}</div>
-          <button class="btn-del" onclick="deleteEntry(${e.id})">✕</button>
+          <button class="btn-edit" onclick="openEditModal(${e.id})" aria-label="수정">✏️</button>
+          <button class="btn-del" onclick="deleteEntry(${e.id})" aria-label="삭제">✕</button>
         </div>
       </div>
       <div class="entry-meta">
@@ -477,6 +574,11 @@ function downloadCSV(csv,filename){const a=document.createElement('a');a.href='d
 function exportFiltered(){const ents=getFiltered();if(!ents.length){showToast('내보낼 내역이 없어요');return;}downloadCSV(makeCSV(ents),makeFilename());showToast('다운로드 완료');}
 function exportAll(){if(!entries.length){showToast('내보낼 내역이 없어요');return;}downloadCSV(makeCSV(entries),'지출_전체_'+new Date().toISOString().split('T')[0]+'.csv');showToast('전체 CSV 다운로드 완료');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+// 모달 외부 클릭시 닫기
+document.getElementById('edit-modal').addEventListener('click', function(e){
+  if (e.target === this) closeEditModal();
+});
 
 loadLocal();
 init();
